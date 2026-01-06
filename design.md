@@ -15,7 +15,7 @@ flowchart TD
     Send --> Wait[Wait for Transmission Complete]
     Wait --> LowPower
     Wake -- No --> LowPower
-
+```
 ## 2. Power Management Strategy
 To ensure long-term operation in remote agricultural environments, the STM32 sensor node implements a cyclic power-saving strategy:
 
