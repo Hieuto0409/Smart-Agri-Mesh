@@ -1,0 +1,24 @@
+# --- STM32CubeIDE ---
+**/Debug/
+**/Release/
+*.elf
+*.bin
+*.list
+*.map
+*.o
+*.d
+*.su
+*.launch
+
+# --- PlatformIO (ESP32) ---
+**/.pio/
+**/.vscode/
+**/.pycache/
+*.py[cod]
+
+# --- General System Files ---
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+*.swp
