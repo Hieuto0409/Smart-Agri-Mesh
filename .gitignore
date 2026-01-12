@@ -22,3 +22,5 @@ Thumbs.db
 *.tmp
 *.bak
 *.swp
+# --- STM32 Workspace Metadata ---
+**/.metadata/

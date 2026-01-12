@@ -17,10 +17,64 @@
  */
 
 #include <stdint.h>
+#include <stm32f401re.h>
+#include <stm32f401re_rcc.h>
+#include <stm32f401re_usart.h>
+#include <stm32f401re_gpio.h>
+#include <misc.h>
 
+#define UART_TX 			GPIO_Pin_2
+#define UART_TX_GPIO 		GPIOA
+#define UART_TX_CLOCK		RCC_AHB1Periph_GPIOA
+#define USART2_CLOCK		RCC_APB1Periph_USART2
+
+
+#define UART_RX 			GPIO_Pin_3
+#define UART_RX_GPIO 		GPIOA
+#define UART_RX_CLOCK		RCC_AHB1Periph_GPIOA
+
+#define USARTx_Baud			115200
+void USART2_Init(void) {
+	    GPIO_InitTypeDef GPIO_InitStructure;
+	    USART_InitTypeDef USART_InitStructure;
+
+	    // 1. Bật Clock cho GPIOA và USART2
+	    RCC_AHB1PeriphClockCmd(UART_TX_CLOCK | UART_RX_CLOCK, ENABLE);
+	    RCC_APB1PeriphClockCmd(USART2_CLOCK, ENABLE);
+
+	    // 2. Cấu hình chân PA2 (TX) và PA3 (RX) cùng lúc
+	    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+
+	    GPIO_InitStructure.GPIO_Pin = UART_TX | UART_RX;
+	    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	    // 3. Map chân vào đúng chức năng USART2
+	    GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);
+	    GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);
+
+	    // 4. Cấu hình bộ USART2
+	    USART_InitStructure.USART_BaudRate = 115200;
+	    USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	    USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	    USART_InitStructure.USART_Parity = USART_Parity_No;
+	    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	    USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
+
+	    USART_Init(USART2, &USART_InitStructure);
+
+	    // 5. Kích hoạt USART2
+	    USART_Cmd(USART2, ENABLE);
+	}
 
 int main(void)
 {
+	USART2_Init();
     /* Loop forever */
-	for(;;);
+	while(1){
+		USART_SendData(USART2, 0x10);
+		for(uint32_t i = 0; i < 500000; i++);
+	}
 }
