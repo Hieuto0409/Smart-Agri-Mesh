@@ -1,18 +1,22 @@
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
-
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+#define UART_TX 17
+#define UART_RX 16
+HardwareSerial SerialPort(2);
+void setup()
+{
+  Serial.begin(115200);
+  SerialPort.begin(115200, SERIAL_8N1, UART_RX, UART_TX);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
+void loop()
+{
+  if (SerialPort.available())
+  {
+    uint8_t data = SerialPort.read();
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+    Serial.print("Nhan duoc: 0x");
+    Serial.println(data, HEX);
+    delay(1000);
+  }
 }

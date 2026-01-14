@@ -23,6 +23,7 @@
 #include <stm32f401re_gpio.h>
 #include <misc.h>
 
+
 #define UART_TX 			GPIO_Pin_2
 #define UART_TX_GPIO 		GPIOA
 #define UART_TX_CLOCK		RCC_AHB1Periph_GPIOA
@@ -56,7 +57,7 @@ void USART2_Init(void) {
 	    GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);
 
 	    // 4. Cấu hình bộ USART2
-	    USART_InitStructure.USART_BaudRate = 115200;
+	    USART_InitStructure.USART_BaudRate = USARTx_Baud;
 	    USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	    USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	    USART_InitStructure.USART_Parity = USART_Parity_No;
