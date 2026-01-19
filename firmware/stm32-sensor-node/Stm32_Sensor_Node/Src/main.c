@@ -16,14 +16,16 @@
 #define USARTx_CLOCK        	RCC_APB2Periph_USART1 // USART1 nằm trên bus APB2
 // định nghĩa chân sensor
 #define SENSOR_GPIO				GPIOA
-#define SENSOR_GPIO_PIN			GPIO_PinSource1
+#define SENSOR_GPIO_PIN			GPIO_Pin_1
 #define SENSOR_GPIO_CLOCK     	RCC_AHB1Periph_GPIOA
 
 #define USARTx_Baud         	9600
 
 uint16_t HumiValue;
 uint8_t received_data =0 ;
-uint8_t Send_data = 0x00;
+uint8_t HightByte;
+uint8_t LowByte;
+//uint8_t Send_data = 0x00;
 
 void SENSOR_Init(void){
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -108,6 +110,26 @@ uint16_t Cover_Humidity(void){
 	while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
 	return ADC_GetConversionValue(ADC1);
 }
+void SendMess (uint16_t humivalue){
+
+	HightByte= (uint8_t)(humivalue >> 8);
+	LowByte = (uint8_t)(humivalue & 0xFF);
+
+	while(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_TXE) == RESET);
+
+	USART_SendData(USARTx_INSTANCE, 0xAA);
+
+	// Kiểm tra cờ TXE trước khi gửi để tránh mất bit hoặc rác dữ liệu
+	 while(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_TXE) == RESET);
+
+	 USART_SendData(USARTx_INSTANCE, HightByte);
+
+	 while(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_TXE) == RESET);
+
+	 USART_SendData(USARTx_INSTANCE, LowByte);
+
+	 received_data = USART_ReceiveData(USART1);
+}
 static void MultiSensorScan(void)
 {
     uint32_t dwTimeCurrent;
@@ -152,20 +174,9 @@ int main(void)
     ADC_HUMI_Init();
 
     while(1) {
-    	Send_data++;
     	MultiSensorScan();
     	processTimerScheduler();
 
-        // Kiểm tra cờ TXE trước khi gửi để tránh mất bit hoặc rác dữ liệu
-        while(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_TXE) == RESET);
-
-        // Gửi byte 0x55 (Test)
-        USART_SendData(USARTx_INSTANCE, Send_data);
-
-        while(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_RXNE) == RESET);
-
-        received_data = USART_ReceiveData(USART1);
-
-        Delay_Ms(1000);
+    	SendMess(HumiValue);
     }
 }
