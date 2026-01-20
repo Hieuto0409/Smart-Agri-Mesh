@@ -21,11 +21,10 @@
 
 #define USARTx_Baud         	9600
 
-uint16_t HumiValue;
+volatile uint16_t HumiValue;
 uint8_t received_data =0 ;
 uint8_t HightByte;
 uint8_t LowByte;
-//uint8_t Send_data = 0x00;
 
 void SENSOR_Init(void){
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -151,6 +150,7 @@ static void MultiSensorScan(void)
         // Time scan 2s
         dwTimeTotal = 0;
         HumiValue= Cover_Humidity();
+        SendMess(HumiValue);
     }
     dwTimeInit = dwTimeCurrent;
 }
@@ -172,11 +172,15 @@ int main(void)
     USART1_Init();
     SENSOR_Init();
     ADC_HUMI_Init();
+    TimerInit();
 
     while(1) {
-    	MultiSensorScan();
     	processTimerScheduler();
+    	MultiSensorScan();
+//    	HumiValue= Cover_Humidity();
+//    	SendMess(HumiValue);
 
-    	SendMess(HumiValue);
+//    	USART_SendData(USARTx_INSTANCE, 0x10);
+//    	Delay_Ms(1000);
     }
 }
