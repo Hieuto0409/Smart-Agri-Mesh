@@ -41,9 +41,6 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
 .icon{
     font-size: 50px;
 }
-.humiValue_p{
-    font-size: 30px;
-}
 .button{
     /*border: 1px solid rgba(0,0,0,1);*/
     padding: 20px;
@@ -61,6 +58,12 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
     cursor: pointer;
     background-color: #2c7e4f;
 }
+.humiValueContain{
+    font-size: 30px;
+    display: flex;              /* Kích hoạt chế độ dàn hàng ngang */
+    align-items: baseline;      /* Cực hay: Giúp chân chữ "50" và "%" thẳng hàng nhau */
+    justify-content: center;
+}
 </style>
 </head>
 <body>
@@ -73,7 +76,10 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
     <div class="humiValue">
         <span class="icon">🌱</span>
         <h1 class="humiValue_h1">Giá trị độ ẩm</h1>
-        <p class="humiValue_p">50%</p>
+        <div class="humiValueContain">
+            <p id="humiValue_p">50</p><span>%</span>
+            
+        </div>
     </div>
 </div>
 <div>
@@ -81,6 +87,10 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
         <button class="button_Bt" type="submit">Bơm nước</button>
     </div>
 </div>
+<script>
+    let humiValue= document.getElementById('humiValue_p');
+    humiValue.innerText = '30';
+</script>
 </body>
 </html>)====";
 #endif
