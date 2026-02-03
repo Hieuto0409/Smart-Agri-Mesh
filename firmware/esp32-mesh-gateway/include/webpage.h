@@ -46,7 +46,7 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
     padding: 20px;
     margin: 50px 200px 20px 200px;
 }
-.button_Bt{
+#button_Bt{
     background-color: #3bb870;
     color: #FFF;
     padding: 20px 50px 20px 50px;
@@ -54,7 +54,7 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
     border: none;
     font-size: 20px;
 }
-.button_Bt:hover{
+#button_Bt:hover{
     cursor: pointer;
     background-color: #2c7e4f;
 }
@@ -84,12 +84,29 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
 </div>
 <div>
     <div class="button">
-        <button class="button_Bt" type="submit">Bơm nước</button>
+        <button id="button_Bt" onclick="WaterPump()" type="submit">Bơm nước</button>
     </div>
 </div>
 <script>
     let humiValue= document.getElementById('humiValue_p');
-    humiValue.innerText = '30';
+    let pump = document.getElementById('button_Bt');
+    
+    function WaterPump (){
+        pump.style.backgroundColor="red";
+        var On = 1;
+        fetch("/Pumpstatus?Status="+On);
+    }
+    function GetValue (){
+        fetch("/GetHumiValue")
+        .then(respond => respond.text())
+        .then(data => {
+            humiValue.innerText = data;
+        })
+        .catch(error => {
+            console.log("Lỗi rồi: " + error);
+        })
+    }
+    setInterval(GetValue, 500);
 </script>
 </body>
 </html>)====";

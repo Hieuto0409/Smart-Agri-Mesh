@@ -22,11 +22,19 @@ void MapValue(uint16_t HMValue){
   PercentHumi = map(HMValue,DryValue,WetValue,0,100);
 }
 void webSetup(){
-  Serial.println("HTTP Request");
+  // Serial.println("HTTP Request");
 
   String html = html_page;
 
   myServer.send(200,"text/html",html);
+}
+void SendHumi (){
+  myServer.send(200,"text/plain",String(PercentHumi));
+}
+void GetValuePump(){
+  String status = myServer.arg("Status");
+  Serial.println(status);
+  myServer.send(200, "text/plain", "Da nhan");
 }
 void setup()
 {
@@ -37,6 +45,8 @@ void setup()
   Serial.println(WiFi.softAPIP());
 
   myServer.on("/",webSetup);
+  myServer.on("/GetHumiValue",SendHumi);
+  myServer.on("/Pumpstatus",GetValuePump);
   myServer.begin();
 }
 void loop()
@@ -51,7 +61,7 @@ void loop()
 
       HumiValue =(HightByte << 8) | LowByte ;
       MapValue(HumiValue);
-      Serial.println(PercentHumi);
+      // Serial.println(PercentHumi);
     }
   }
 }
