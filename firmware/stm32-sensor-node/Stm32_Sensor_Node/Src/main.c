@@ -25,7 +25,7 @@
 #define USARTx_Baud         	9600
 
 volatile uint16_t HumiValue;
-uint8_t received_data =0 ;
+volatile uint8_t ReceiveData ;
 uint8_t HightByte;
 uint8_t LowByte;
 
@@ -142,7 +142,8 @@ void SendMess (uint16_t humivalue){
 
 	 USART_SendData(USARTx_INSTANCE, LowByte);
 
-	 received_data = USART_ReceiveData(USART1);
+
+//	 received_data = USART_ReceiveData(USART1);
 }
 static void MultiSensorScan(void)
 {
@@ -192,5 +193,14 @@ int main(void)
     while(1) {
     	processTimerScheduler();
     	MultiSensorScan();
+    	if(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_RXNE) != RESET){
+    		ReceiveData = (uint8_t) USART_ReceiveData(USART1);
+    		if(ReceiveData == '0'){
+    			GPIO_ResetBits(RELAY_GPIO, RELAY_GPIO_PIN);
+    		}
+    		else if (ReceiveData == '1'){
+    			GPIO_SetBits(RELAY_GPIO, RELAY_GPIO_PIN);
+    		}
+    	}
     }
 }

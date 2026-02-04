@@ -90,11 +90,22 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
 <script>
     let humiValue= document.getElementById('humiValue_p');
     let pump = document.getElementById('button_Bt');
+    let check = 0;
+    let on = 1;
+    let off = 0;
     
     function WaterPump (){
-        pump.style.backgroundColor="red";
-        var On = 1;
-        fetch("/Pumpstatus?Status="+On);
+        if (check == 0) {
+            pump.style.backgroundColor="red";
+            pump.innerText="Hủy bơm nước";
+            check =1;
+            fetch("/Pumpstatus?Status="+off);
+        }else{
+            pump.style.backgroundColor="#3bb870";
+            pump.innerText="Bơm nước";
+            check = 0;
+            fetch("/Pumpstatus?Status="+on);
+        }
     }
     function GetValue (){
         fetch("/GetHumiValue")

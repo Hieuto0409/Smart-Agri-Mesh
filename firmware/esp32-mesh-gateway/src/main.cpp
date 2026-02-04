@@ -33,7 +33,8 @@ void SendHumi (){
 }
 void GetValuePump(){
   String status = myServer.arg("Status");
-  Serial.println(status);
+  Serial.print(status);
+  SerialPort.print(status);
   myServer.send(200, "text/plain", "Da nhan");
 }
 void setup()
