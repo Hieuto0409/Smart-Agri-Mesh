@@ -19,9 +19,9 @@
 #define SENSOR_GPIO_PIN			GPIO_Pin_1
 #define SENSOR_GPIO_CLOCK     	RCC_AHB1Periph_GPIOA
 // định nghĩa chân relay
-#define RELAY_GPIO				GPIOA
-#define RELAY_GPIO_PIN			GPIO_Pin_4
-#define RELAY_GPIO_CLOCK		RCC_AHB1Periph_GPIOA
+#define RELAY_GPIO				GPIOB
+#define RELAY_GPIO_PIN			GPIO_Pin_6
+#define RELAY_GPIO_CLOCK		RCC_AHB1Periph_GPIOB
 #define USARTx_Baud         	9600
 
 volatile uint16_t HumiValue;
@@ -34,12 +34,13 @@ void Relay_Init(void){
 
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Pin = RELAY_GPIO_PIN;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_NOPULL;
 
 	RCC_AHB1PeriphClockCmd(RELAY_GPIO_CLOCK, ENABLE);
 	GPIO_Init(RELAY_GPIO, &GPIO_InitStructure);
+	GPIO_SetBits(RELAY_GPIO, RELAY_GPIO_PIN);
 }
 void SENSOR_Init(void){
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -196,10 +197,10 @@ int main(void)
     	if(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_RXNE) != RESET){
     		ReceiveData = (uint8_t) USART_ReceiveData(USART1);
     		if(ReceiveData == '0'){
-    			GPIO_ResetBits(RELAY_GPIO, RELAY_GPIO_PIN);
+    		    GPIO_ResetBits(RELAY_GPIO, RELAY_GPIO_PIN);
     		}
     		else if (ReceiveData == '1'){
-    			GPIO_SetBits(RELAY_GPIO, RELAY_GPIO_PIN);
+    		    GPIO_SetBits(RELAY_GPIO, RELAY_GPIO_PIN);
     		}
     	}
     }
