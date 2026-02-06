@@ -29,7 +29,7 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
     color: #FFF;
 }
 .humiValue{
-    margin: 50px 200px 20px 200px;
+    margin: 50px 20px 20px 20px;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.5);
     padding: 20px;
@@ -64,6 +64,12 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
     align-items: baseline;      /* Cực hay: Giúp chân chữ "50" và "%" thẳng hàng nhau */
     justify-content: center;
 }
+.ValueContain{
+    display: flex;
+    /*justify-content: center;*/
+    justify-content: space-between; /* 2. Căn khoảng cách: dãn đều ra 2 bên */
+    /*gap: 20px;*/
+}
 </style>
 </head>
 <body>
@@ -72,12 +78,28 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
 <p class="author">Dự án IoT - Tô Quang Hiếu</p>
     
 </div>
-<div>
+<div class="ValueContain">
     <div class="humiValue">
-        <span class="icon">🌱</span>
-        <h1 class="humiValue_h1">Giá trị độ ẩm</h1>
+        <span class="icon">☀️</span>
+        <h1 class="humiValue_h1">Ánh sáng</h1>
         <div class="humiValueContain">
             <p id="humiValue_p">50</p><span>%</span>
+            
+        </div>
+    </div>
+    <div class="humiValue">
+        <span class="icon">🌱</span>
+        <h1 class="humiValue_h1">Độ ẩm</h1>
+        <div class="humiValueContain">
+            <p id="humiValue_p">50</p><span>%</span>
+            
+        </div>
+    </div>
+    <div class="humiValue">
+        <span class="icon">🌡</span>
+        <h1 class="humiValue_h1">Nhiệt độ</h1>
+        <div class="humiValueContain">
+            <p id="humiValue_p">23</p><span>℃</span>
             
         </div>
     </div>
