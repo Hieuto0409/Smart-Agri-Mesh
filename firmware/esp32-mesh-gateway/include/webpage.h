@@ -65,10 +65,10 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
     justify-content: center;
 }
 .ValueContain{
-    display: flex;
-    /*justify-content: center;*/
-    justify-content: space-between; /* 2. Căn khoảng cách: dãn đều ra 2 bên */
-    /*gap: 20px;*/
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Chia 3 cột đều tăm tắp */
+    gap: 20px; /* Khoảng cách giữa các khối */
+    padding: 0 50px 0 50px;
 }
 </style>
 </head>
@@ -83,7 +83,7 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
         <span class="icon">☀️</span>
         <h1 class="humiValue_h1">Ánh sáng</h1>
         <div class="humiValueContain">
-            <p id="humiValue_p">50</p><span>%</span>
+            <p id="LightValue_p">50</p><span>dc</span>
             
         </div>
     </div>
@@ -99,7 +99,7 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
         <span class="icon">🌡</span>
         <h1 class="humiValue_h1">Nhiệt độ</h1>
         <div class="humiValueContain">
-            <p id="humiValue_p">23</p><span>℃</span>
+            <p id="TempValue_p">23</p><span>℃</span>
             
         </div>
     </div>
@@ -111,6 +111,8 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
 </div>
 <script>
     let humiValue= document.getElementById('humiValue_p');
+    let LightValue= document.getElementById('LightValue_p');
+    let TemptValue= document.getElementById('TempValue_p');
     let pump = document.getElementById('button_Bt');
     let check = 0;
     let on = 1;

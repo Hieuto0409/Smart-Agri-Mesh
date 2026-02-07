@@ -15,9 +15,9 @@
 #define USARTx_INSTANCE     	USART1
 #define USARTx_CLOCK        	RCC_APB2Periph_USART1 // USART1 nằm trên bus APB2
 // định nghĩa chân sensor
-#define SENSOR_GPIO				GPIOA
-#define SENSOR_GPIO_PIN			GPIO_Pin_1
-#define SENSOR_GPIO_CLOCK     	RCC_AHB1Periph_GPIOA
+#define SENSOR_HUMI_GPIO				GPIOA
+#define SENSOR_HUMI_GPIO_PIN			GPIO_Pin_1
+#define SENSOR_HUMI_GPIO_CLOCK     	RCC_AHB1Periph_GPIOA
 // định nghĩa chân relay
 #define RELAY_GPIO				GPIOB
 #define RELAY_GPIO_PIN			GPIO_Pin_6
@@ -46,12 +46,12 @@ void SENSOR_Init(void){
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-	GPIO_InitStructure.GPIO_Pin = SENSOR_GPIO_PIN;
+	GPIO_InitStructure.GPIO_Pin = SENSOR_HUMI_GPIO_PIN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_NOPULL;
 
-	RCC_AHB1PeriphClockCmd(SENSOR_GPIO_CLOCK, ENABLE);
-	GPIO_Init(SENSOR_GPIO, &GPIO_InitStructure);
+	RCC_AHB1PeriphClockCmd(SENSOR_HUMI_GPIO_CLOCK, ENABLE);
+	GPIO_Init(SENSOR_HUMI_GPIO, &GPIO_InitStructure);
 }
 static void ADC_HUMI_Init(void){
 	ADC_InitTypeDef				ADC_InitStructure;
