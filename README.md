@@ -6,21 +6,20 @@ This project provides a versatile and scalable IoT solution designed to optimize
 ## 2. System Architecture
 The system follows a Star-Mesh topology:
 - **Sensor Nodes (STM32F401RE):** Collect soil moisture and temperature data.
-- **Gateway (ESP32):** Aggregates data from nodes and uploads it to the Cloud via MQTT.
+- **Gateway (ESP32):** Aggregates data from nodes and uploads it to the Cloud .
 - **Monitoring Platform:** Mobile/Web dashboard for real-time tracking and remote control.
 ```mermaid
 graph TD
     A["Soil Sensor"] -->|ADC| B("STM32 Node")
-    B -->|"UART/LoRa"| C("ESP32 Gateway")
-    C -->|"Wi-Fi/MQTT"| D["Cloud Server"]
+    B -->|"UART"| C("ESP32 Gateway")
+    C -->|"Wi-Fi"| D["Cloud Server"]
     D --> E["Smart Phone App"]
     E -->|Command| C
     C --> F["Relay/Water Pump"]
 ```
 ## 3. Technology Stack
 - **Hardware:** STM32F401RE (Nucleo), ESP32, Capacitive Soil Moisture Sensors.
-- **Communication:** UART (Prototype), LoRa (Long-range field deployment).
-- **Protocols:** MQTT, JSON.
+- **Communication:** UART (Prototype),).
 - **Embedded Software:** C (STM32 HAL), C++ (Arduino/ESP32).
 
 ## 4. Key Features
