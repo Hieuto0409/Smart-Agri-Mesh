@@ -83,7 +83,7 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
         <span class="icon">☀️</span>
         <h1 class="humiValue_h1">Ánh sáng</h1>
         <div class="humiValueContain">
-            <p id="LightValue_p">50</p><span>dc</span>
+            <p id="LightValue_p">50</p><span>%</span>
             
         </div>
     </div>
@@ -136,6 +136,22 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
         .then(respond => respond.text())
         .then(data => {
             humiValue.innerText = data;
+        })
+        .catch(error => {
+            console.log("Lỗi rồi: " + error);
+        })
+        fetch("/GetLightValue")
+        .then(respond => respond.text())
+        .then(data => {
+            LightValue.innerText = data;
+        })
+        .catch(error => {
+            console.log("Lỗi rồi: " + error);
+        })
+        fetch("/GetTempValue")
+        .then(respond => respond.text())
+        .then(data => {
+            TemptValue.innerText = data;
         })
         .catch(error => {
             console.log("Lỗi rồi: " + error);

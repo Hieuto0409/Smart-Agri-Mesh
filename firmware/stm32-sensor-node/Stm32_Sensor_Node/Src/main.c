@@ -8,23 +8,32 @@
 #include <misc.h>
 
 // Định nghĩa chân cho USART1
-#define UART_TX_PIN         	GPIO_Pin_9
-#define UART_RX_PIN         	GPIO_Pin_10
-#define UART_GPIO_PORT      	GPIOA
-#define UART_GPIO_CLOCK     	RCC_AHB1Periph_GPIOA
-#define USARTx_INSTANCE     	USART1
-#define USARTx_CLOCK        	RCC_APB2Periph_USART1 // USART1 nằm trên bus APB2
-// định nghĩa chân sensor
+#define UART_TX_PIN         			GPIO_Pin_9
+#define UART_RX_PIN         			GPIO_Pin_10
+#define UART_GPIO_PORT      			GPIOA
+#define UART_GPIO_CLOCK     			RCC_AHB1Periph_GPIOA
+#define USARTx_INSTANCE     			USART1
+#define USARTx_CLOCK        			RCC_APB2Periph_USART1 // USART1 nằm trên bus APB2
+// định nghĩa chân sensor humi
 #define SENSOR_HUMI_GPIO				GPIOA
 #define SENSOR_HUMI_GPIO_PIN			GPIO_Pin_1
-#define SENSOR_HUMI_GPIO_CLOCK     	RCC_AHB1Periph_GPIOA
+#define SENSOR_GPIOA_CLOCK     			RCC_AHB1Periph_GPIOA
+// định nghĩa chân sensor light
+#define SENSOR_LIGHT_GPIO				GPIOA
+#define SENSOR_LIGHT_GPIO_PIN			GPIO_Pin_4
+// định nghĩa chân sensor temp
+#define SENSOR_TEMP_GPIO				GPIOB
+#define SENSOR_TEMP_GPIO_PIN			GPIO_Pin_0
+#define SENSOR_GPIOB_CLOCK     			RCC_AHB1Periph_GPIOB
 // định nghĩa chân relay
-#define RELAY_GPIO				GPIOB
-#define RELAY_GPIO_PIN			GPIO_Pin_6
-#define RELAY_GPIO_CLOCK		RCC_AHB1Periph_GPIOB
-#define USARTx_Baud         	9600
+#define RELAY_GPIO						GPIOB
+#define RELAY_GPIO_PIN					GPIO_Pin_6
+#define RELAY_GPIO_CLOCK				RCC_AHB1Periph_GPIOB
+#define USARTx_Baud         			9600
 
 volatile uint16_t HumiValue;
+volatile uint16_t LightValue;
+volatile uint16_t TempValue;
 volatile uint8_t ReceiveData ;
 uint8_t HightByte;
 uint8_t LowByte;
@@ -42,18 +51,23 @@ void Relay_Init(void){
 	GPIO_Init(RELAY_GPIO, &GPIO_InitStructure);
 	GPIO_SetBits(RELAY_GPIO, RELAY_GPIO_PIN);
 }
-void SENSOR_Init(void){
+void Sensor_Init(void){
 	GPIO_InitTypeDef GPIO_InitStructure;
 
+	RCC_AHB1PeriphClockCmd(SENSOR_GPIOA_CLOCK | SENSOR_GPIOB_CLOCK, ENABLE);
+
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-	GPIO_InitStructure.GPIO_Pin = SENSOR_HUMI_GPIO_PIN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_NOPULL;
 
-	RCC_AHB1PeriphClockCmd(SENSOR_HUMI_GPIO_CLOCK, ENABLE);
+	GPIO_InitStructure.GPIO_Pin = SENSOR_HUMI_GPIO_PIN | SENSOR_LIGHT_GPIO_PIN;
 	GPIO_Init(SENSOR_HUMI_GPIO, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = SENSOR_TEMP_GPIO_PIN;
+	GPIO_Init(SENSOR_TEMP_GPIO, &GPIO_InitStructure);
+
 }
-static void ADC_HUMI_Init(void){
+static void ADC_Sensor_Init(void){
 	ADC_InitTypeDef				ADC_InitStructure;
 	ADC_CommonInitTypeDef		ADC_CommonInitStructure;
 	//Cap clock cho ADC1 hoat dong
@@ -71,16 +85,18 @@ static void ADC_HUMI_Init(void){
 
 	// ADC1 Init
 	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b; // lua chon do phan giai la 12 bit
-	ADC_InitStructure.ADC_ScanConvMode = DISABLE; // cho phep quet che do quet don kenh (1 kenh) va chuyen doi du lieu lien tuc
+	ADC_InitStructure.ADC_ScanConvMode = ENABLE; // cho phep quet che do quet nhieu kenh va chuyen doi du lieu lien tuc
 	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE; // chon che do Single Continuous
 	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_CC1;
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-	ADC_InitStructure.ADC_NbrOfConversion = 1;// thuc hien chuyen doi mot lan trong luc quet
+	ADC_InitStructure.ADC_NbrOfConversion = 3;// thuc hien chuyen doi nhieu lan trong luc quet
 	ADC_Init(ADC1, &ADC_InitStructure);
 
 
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_144Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 2, ADC_SampleTime_144Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_8, 3, ADC_SampleTime_144Cycles);
 
 	// Enable ADC1
 	ADC_Cmd(ADC1, ENABLE);
@@ -122,29 +138,45 @@ void USART1_Init(void) {
     USART_Cmd(USARTx_INSTANCE, ENABLE);
 }
 uint16_t Cover_Humidity(void){
+	// 1. Chọn kênh 1
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_144Cycles);
+	// 2. Bắt đầu chuyển đổi bằng phần mềm
+	ADC_SoftwareStartConv(ADC1);
+	// 3. Đợi xong
 	while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
 	return ADC_GetConversionValue(ADC1);
 }
-void SendMess (uint16_t humivalue){
+uint16_t Cover_Light(void){
+	// 1. Chọn kênh 4
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 1, ADC_SampleTime_144Cycles);
+	// 2. Bắt đầu chuyển đổi bằng phần mềm
+	ADC_SoftwareStartConv(ADC1);
+	// 3. Đợi xong
+	while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
+	return ADC_GetConversionValue(ADC1);
+}
+uint16_t Cover_Temp(void){
+	// 1. Chọn kênh 8
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_8, 1, ADC_SampleTime_144Cycles);
+	// 2. Bắt đầu chuyển đổi bằng phần mềm
+	ADC_SoftwareStartConv(ADC1);
+	// 3. Đợi xong
+	while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
+	return ADC_GetConversionValue(ADC1);
+}
+void SendMess (uint16_t humivalue,uint16_t LightValue, uint16_t TempValue){
+	uint8_t data[8];
+	data[0] = 0xAA; // Header
+	data[1] = (uint8_t)(humivalue >> 8); data[2] = (uint8_t)(humivalue & 0xFF);
+	data[3] = (uint8_t)(LightValue >> 8); data[4] = (uint8_t)(LightValue & 0xFF);
+	data[5] = (uint8_t)(TempValue >> 8); data[6] = (uint8_t)(TempValue & 0xFF);
+	data[7] = 0x55;
 
-	HightByte= (uint8_t)(humivalue >> 8);
-	LowByte = (uint8_t)(humivalue & 0xFF);
+	for (int i = 0; i < 8; i++) {
+	     while(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_TXE) == RESET);
+	     USART_SendData(USARTx_INSTANCE, data[i]);
+	 }
 
-	while(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_TXE) == RESET);
-
-	USART_SendData(USARTx_INSTANCE, 0xAA);
-
-	// Kiểm tra cờ TXE trước khi gửi để tránh mất bit hoặc rác dữ liệu
-	 while(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_TXE) == RESET);
-
-	 USART_SendData(USARTx_INSTANCE, HightByte);
-
-	 while(USART_GetFlagStatus(USARTx_INSTANCE, USART_FLAG_TXE) == RESET);
-
-	 USART_SendData(USARTx_INSTANCE, LowByte);
-
-
-//	 received_data = USART_ReceiveData(USART1);
 }
 static void MultiSensorScan(void)
 {
@@ -167,7 +199,10 @@ static void MultiSensorScan(void)
         // Time scan 2s
         dwTimeTotal = 0;
         HumiValue= Cover_Humidity();
-        SendMess(HumiValue);
+        LightValue = Cover_Light();
+        TempValue = Cover_Temp();
+
+        SendMess(HumiValue, LightValue, TempValue);
     }
     dwTimeInit = dwTimeCurrent;
 }
@@ -187,8 +222,8 @@ int main(void)
 
     SystemCoreClockUpdate();
     USART1_Init();
-    SENSOR_Init();
-    ADC_HUMI_Init();
+    Sensor_Init();
+    ADC_Sensor_Init();
     TimerInit();
     Relay_Init();
     while(1) {
