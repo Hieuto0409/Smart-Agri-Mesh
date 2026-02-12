@@ -6,8 +6,8 @@
 #define UART_TX 17
 #define UART_RX 16
 #define baud 9600
-#define DryValue 4095
-#define WetValue 1400
+#define DryValue 4000
+#define WetValue 967
 
 HardwareSerial SerialPort(2);
 
@@ -28,7 +28,7 @@ void MapValue(uint16_t HMValue, uint16_t Lvalue, uint16_t Tvalue)
 {
   PercentHumi = map(HMValue, DryValue, WetValue, 0, 100);
   PercentLight = map(Lvalue, 4064, 54, 0, 100);
-  PercentTemp = map(Tvalue, 0, 1241, 0, 100);
+  PercentTemp = map(Tvalue, 600, 100, 20, 70);
 }
 void webSetup()
 {
@@ -82,7 +82,7 @@ void loop()
     {
       uint8_t data[8];
       SerialPort.readBytes(data, 8);
-      if ( data[7] == 0x55)
+      if (data[7] == 0x55)
       {
 
         uint8_t HightByteHumi = data[1];
@@ -98,9 +98,9 @@ void loop()
         TempValue = (HightByteTemp << 8) | LowByteTemp;
 
         MapValue(HumiValue, LightValue, TempValue);
+        // Serial.println(TempValue);
+        // Serial.println(LightValue);
         Serial.println(TempValue);
-        Serial.println(LightValue);
-        Serial.println(HumiValue);
       }
     }
   }

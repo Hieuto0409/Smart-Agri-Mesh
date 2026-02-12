@@ -22,7 +22,7 @@
 #define SENSOR_LIGHT_GPIO				GPIOA
 #define SENSOR_LIGHT_GPIO_PIN			GPIO_Pin_4
 // định nghĩa chân sensor temp
-#define SENSOR_TEMP_GPIO				GPIOB
+#define SENSOR_TEMP_GPIO				GPIOA
 #define SENSOR_TEMP_GPIO_PIN			GPIO_Pin_0
 #define SENSOR_GPIOB_CLOCK     			RCC_AHB1Periph_GPIOB
 // định nghĩa chân relay
@@ -37,7 +37,7 @@ volatile uint16_t TempValue;
 volatile uint8_t ReceiveData ;
 uint8_t HightByte;
 uint8_t LowByte;
-
+void Delay_Ms(uint32_t ms);
 void Relay_Init(void){
 	GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -85,22 +85,22 @@ static void ADC_Sensor_Init(void){
 
 	// ADC1 Init
 	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b; // lua chon do phan giai la 12 bit
-	ADC_InitStructure.ADC_ScanConvMode = ENABLE; // cho phep quet che do quet nhieu kenh va chuyen doi du lieu lien tuc
-	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE; // chon che do Single Continuous
+	ADC_InitStructure.ADC_ScanConvMode = DISABLE; // cho phep quet che do quet mot kenh va chuyen doi du lieu lien tuc
+	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
 	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_CC1;
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-	ADC_InitStructure.ADC_NbrOfConversion = 3;// thuc hien chuyen doi nhieu lan trong luc quet
+	ADC_InitStructure.ADC_NbrOfConversion = 1;// thuc hien chuyen doi nhieu lan trong luc quet
 	ADC_Init(ADC1, &ADC_InitStructure);
 
 
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_144Cycles);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 2, ADC_SampleTime_144Cycles);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_8, 3, ADC_SampleTime_144Cycles);
+//	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_144Cycles);
+//	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 2, ADC_SampleTime_144Cycles);
+//	ADC_RegularChannelConfig(ADC1, ADC_Channel_8, 3, ADC_SampleTime_144Cycles);
 
 	// Enable ADC1
 	ADC_Cmd(ADC1, ENABLE);
-	ADC_SoftwareStartConv(ADC1);
+//	ADC_SoftwareStartConv(ADC1);
 }
 void USART1_Init(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -156,13 +156,15 @@ uint16_t Cover_Light(void){
 	return ADC_GetConversionValue(ADC1);
 }
 uint16_t Cover_Temp(void){
-	// 1. Chọn kênh 8
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_8, 1, ADC_SampleTime_144Cycles);
-	// 2. Bắt đầu chuyển đổi bằng phần mềm
-	ADC_SoftwareStartConv(ADC1);
-	// 3. Đợi xong
-	while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
-	return ADC_GetConversionValue(ADC1);
+	uint32_t sum = 0;
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_144Cycles);
+	for(int i = 0; i < 50; i++) {
+	   ADC_SoftwareStartConv(ADC1);
+	   while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
+	   sum += ADC_GetConversionValue(ADC1);
+	   Delay_Ms(50);
+	 }
+	 return (uint16_t)(sum / 50);
 }
 void SendMess (uint16_t humivalue,uint16_t LightValue, uint16_t TempValue){
 	uint8_t data[8];
