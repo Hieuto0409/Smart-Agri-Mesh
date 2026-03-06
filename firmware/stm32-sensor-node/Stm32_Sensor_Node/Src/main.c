@@ -22,7 +22,7 @@
 #define SENSOR_LIGHT_GPIO				GPIOA
 #define SENSOR_LIGHT_GPIO_PIN			GPIO_Pin_4
 // định nghĩa chân sensor temp
-#define SENSOR_TEMP_GPIO				GPIOA
+#define SENSOR_TEMP_GPIO				GPIOB
 #define SENSOR_TEMP_GPIO_PIN			GPIO_Pin_0
 #define SENSOR_GPIOB_CLOCK     			RCC_AHB1Periph_GPIOB
 // định nghĩa chân relay

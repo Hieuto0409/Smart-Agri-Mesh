@@ -2,12 +2,13 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include "webpage.h"
+#include "Smart-Agri_mesh_inferencing.h"
 
 #define UART_TX 17
 #define UART_RX 16
 #define baud 9600
-#define DryValue 4000
-#define WetValue 967
+#define DryValue 4095
+#define WetValue 1756
 
 HardwareSerial SerialPort(2);
 
@@ -28,7 +29,7 @@ void MapValue(uint16_t HMValue, uint16_t Lvalue, uint16_t Tvalue)
 {
   PercentHumi = map(HMValue, DryValue, WetValue, 0, 100);
   PercentLight = map(Lvalue, 4064, 54, 0, 100);
-  PercentTemp = map(Tvalue, 600, 100, 20, 70);
+  PercentTemp = map(Tvalue, 0, 1000, 0, 100);
 }
 void webSetup()
 {
@@ -99,8 +100,8 @@ void loop()
 
         MapValue(HumiValue, LightValue, TempValue);
         // Serial.println(TempValue);
-        // Serial.println(LightValue);
-        Serial.println(TempValue);
+        // Serial.println(PercentHumi);
+        // Serial.println(PercentTemp);
       }
     }
   }
