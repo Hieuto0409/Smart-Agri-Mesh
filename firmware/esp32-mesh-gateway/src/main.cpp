@@ -20,6 +20,7 @@ uint8_t PercentHumi;
 uint8_t PercentLight;
 uint8_t PercentTemp;
 
+uint8_t ValuePump;
 const char *WifiName = "ESP_wifi";
 const char *passWifi = "123456789";
 
@@ -51,11 +52,12 @@ void SendTemp()
 {
   myServer.send(200, "text/plain", String(PercentTemp));
 }
+void SendValuePump(){
+  myServer.send(200, "text/plain", String(ValuePump));
+}
 void GetValuePump()
 {
   String status = myServer.arg("Status");
-  Serial.print(status);
-  SerialPort.print(status);
   myServer.send(200, "text/plain", "Da nhan");
 }
 
@@ -72,6 +74,7 @@ void setup()
   myServer.on("/GetLightValue", SendLight);
   myServer.on("/GetTempValue", SendTemp);
   myServer.on("/Pumpstatus", GetValuePump);
+  myServer.on("/PumpValue", SendValuePump);
   myServer.begin();
 }
 void loop()
@@ -99,10 +102,31 @@ void loop()
         TempValue = (HightByteTemp << 8) | LowByteTemp;
 
         MapValue(HumiValue, LightValue, TempValue);
-        // Serial.println(TempValue);
-        // Serial.println(PercentHumi);
-        // Serial.println(PercentTemp);
+
+        float my_features[] = {(float)PercentHumi, (float)PercentTemp};
+
+        signal_t features_signal;
+        numpy::signal_from_buffer(my_features,2,&features_signal);
+
+        ei_impulse_result_t result = {0};
+
+        run_classifier(&features_signal,&result,false);
+
+        if(strcmp(result.classification[1].label,"tuoi_nuoc")==0 && result.classification->value > 0.8){
+          Serial.println("turn off pump");
+          ValuePump = 1;
+          SerialPort.print('1');
+        }
+        else{
+          Serial.println("turn on pump");
+          ValuePump = 0;
+          SerialPort.print('0');
+        }
+        delay(500);
       }
+    }else{
+    SerialPort.read();
     }
   }
+  
 }

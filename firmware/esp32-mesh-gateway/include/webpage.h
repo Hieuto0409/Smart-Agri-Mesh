@@ -118,19 +118,19 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
     let on = 1;
     let off = 0;
     
-    function WaterPump (){
-        if (check == 0) {
-            pump.style.backgroundColor="red";
-            pump.innerText="Hủy bơm nước";
-            check =1;
-            fetch("/Pumpstatus?Status="+off);
-        }else{
-            pump.style.backgroundColor="#3bb870";
-            pump.innerText="Bơm nước";
-            check = 0;
-            fetch("/Pumpstatus?Status="+on);
-        }
-    }
+    // function WaterPump (){
+    //     if (check == 0) {
+    //         pump.style.backgroundColor="red";
+    //         pump.innerText="Đang bơm nước";
+    //         check =1;
+    //         // fetch("/Pumpstatus?Status="+off);
+    //     }else{
+    //         pump.style.backgroundColor="#3bb870";
+    //         pump.innerText="Bơm nước";
+    //         check = 0;
+    //         // fetch("/Pumpstatus?Status="+on);
+    //     }
+    // }
     function GetValue (){
         fetch("/GetHumiValue")
         .then(respond => respond.text())
@@ -155,6 +155,19 @@ const char html_page[] PROGMEM = R"====(<!DOCTYPE html>
         })
         .catch(error => {
             console.log("Lỗi rồi: " + error);
+        })
+        fetch("/PumpValue")
+        .then(respond => respond.text())
+        .then(data => {
+            if(data == "0"){
+                pump.style.backgroundColor="red";
+                pump.innerText="Đang bơm nước";
+                fetch("/Pumpstatus?Status="+off);
+            }else{
+                pump.style.backgroundColor="#3bb870";
+                pump.innerText="Bơm nước";
+                fetch("/Pumpstatus?Status="+on);
+            }
         })
     }
     setInterval(GetValue, 500);
