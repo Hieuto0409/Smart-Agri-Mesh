@@ -1,7 +1,7 @@
 # Smart Agri-Mesh: IoT System for Sustainable Farming
 
 ## 1. Introduction
-This project provides a versatile and scalable IoT solution designed to optimize irrigation and monitoring for a wide range of agricultural crops. By utilizing STM32 and ESP32, the system delivers high-precision soil moisture data at multiple depths, empowering farmers to make data-driven decisions for any farming environment, from industrial perennials to seasonal fruit trees.
+This project provides a versatile and scalable IoT solution designed to optimize irrigation and monitoring for a wide range of agricultural crops. By utilizing STM32 and ESP32, the system delivers high-precision soil moisture data at multiple depths, empowering farmers to make data-driven decisions for any farming environment, from industrial perennials to seasonal fruit trees.Additionally, the system integrates an embedded AI model (TinyML) to enable autonomous irrigation decisions based on real-time environmental data.
 
 ## 2. System Architecture
 The system follows a Star-Mesh topology:
@@ -13,14 +13,14 @@ graph TD
     A["Soil Sensor"] -->|ADC| B("STM32 Node")
     B -->|"UART"| C("ESP32 Gateway")
     C -->|"Wi-Fi"| D["Cloud Server"]
-    D --> E["Smart Phone App"]
+    D --> E["Smart Phone App/Web"]
     E -->|Command| C
     C --> F["Relay/Water Pump"]
 ```
 ## 3. Technology Stack
 - **Hardware:** STM32F401RE (Nucleo), ESP32, Capacitive Soil Moisture Sensors.
 - **Communication:** UART (Prototype),).
-- **Embedded Software:** C (STM32 HAL), C++ (Arduino/ESP32).
+- **Embedded Software:** C (STM32 HAL), C++ (Arduino/ESP32),TinyML (Edge Impulse).
 
 ## 4. Key Features
 - **High-Precision Monitoring:** Utilizes a 12-bit ADC on the STM32F401RE to accurately measure soil moisture levels.
@@ -28,3 +28,4 @@ graph TD
 - **Cloud Integration:** Real-time data visualization and remote control using MQTT protocol and a user-friendly dashboard.
 - **Low-Power Design:** Optimized firmware to ensure long-term operation on battery power for remote farm areas.
 - **Scalable Architecture:** Designed to support multiple sensor nodes for large-scale agricultural environments.
+- **AI-Driven Autonomous Irrigation:** Integrates a trained machine learning model via Edge Impulse on the ESP32 to automatically control the water pump based strictly on soil moisture and temperature inputs.
